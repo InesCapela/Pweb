@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:5.7                                # Base image
+    environment:                                # Environment Variables
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: demo
+    volumes:                                    # Volume to store database data, otherwise if we restart we lose everything.
+      - './log_bd:/var/lib/mysql'
+
+  golang:
+    build:
+      context: '.'                            # Path context for Dockefile
+    depends_on:                                 # Starts other containers before this one. DO NOT USE for synchrony
+      - 'mysql'
+    restart: on-failure                         # We need this because the container SQL starts first but at the time golang executes its still not ready.
+
+    ports:                                      # expose web server for your pc
+      - '8080:8080'
